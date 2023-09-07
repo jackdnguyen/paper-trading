@@ -2,7 +2,9 @@ import "./App.css";
 import Header from "./Header";
 import Newsfeed from "./Newsfeed";
 import Stats from "./Stats";
-import { Chart } from "chart.js/auto";
+import "chart.js/auto";
+import "chartjs-adapter-date-fns";
+
 function App() {
   return (
     <div className="App">
