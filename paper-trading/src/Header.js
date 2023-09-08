@@ -1,11 +1,13 @@
 import React from "react";
-import Logo from "./paper-trading.svg";
+import Logo from "./papertrading.svg";
 import "./Header.css";
+
 function Header() {
   return (
     <div className="header_wrapper">
       <div className="header_logo">
         <img src={Logo} alt="Logo" width={25} />
+        <a href="#">Paper Trading</a>
       </div>
       <div className="header_search">
         <div className="header_searchContainer">

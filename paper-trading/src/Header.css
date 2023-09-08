@@ -6,6 +6,15 @@
 }
 .header_logo {
   margin-left: 48px;
+  display: flex;
+  cursor: pointer;
+}
+.header_logo a {
+  margin-left: 5px;
+  text-decoration: none;
+  font-size: large;
+  font-weight: bold;
+  color: white;
 }
 .header_search {
   display: flex;
