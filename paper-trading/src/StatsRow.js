@@ -3,7 +3,6 @@ import "./StatsRow.css";
 import StockSVG from "./stock.svg";
 import { db } from "./firebase";
 import { LISTS_TYPE } from "./util";
-import Example from "./stockModal";
 
 function StatsRow(props) {
   const percentage = ((props.price - props.openPrice) / props.openPrice) * 100;
@@ -14,6 +13,8 @@ function StatsRow(props) {
       price: props.price,
       type: props.type,
       stockName: props.name,
+      shares: props.shares,
+      error: "valid",
     };
     props.handleModalOpen(modalProps);
     // console.log("buy", props.name);

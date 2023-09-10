@@ -30,8 +30,8 @@
 }
 
 .modal-content {
-  width: 25vw;
-  height: 25vh;
+  width: 300px;
+  height: 240px;
   position: absolute;
   left: 50%;
   top: 40%;
@@ -45,8 +45,90 @@
   color: white;
 }
 
+.modal-content .MuiSvgIcon-root:hover {
+  background: #42494d;
+}
+
+.modal-content .modal-header {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #42494d;
+  padding-bottom: 15px;
+}
+
 .modal-overlay {
   position: fixed;
   inset: 0px;
   background-color: rgba(25, 27, 26, 0.774);
+}
+
+.modal-available-funds {
+  padding-top: 5px;
+  font-size: smaller;
+  color: #b1bbc0;
+}
+
+.modal-info-content {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 10px 5px 10px;
+  font-weight: bold;
+  border-bottom: 0.5px solid #42494d;
+  margin-bottom: 20px;
+}
+
+.modal-info-content .valid {
+  background: #1e2023;
+  color: white;
+  font-weight: bold;
+  font-size: medium;
+  text-align: right;
+  caret-color: #5ac53b;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  border-style: solid;
+  border-color: #1e2023;
+}
+.modal-submit {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  text-align: right;
+  text-transform: capitalize;
+  margin-top: 1px;
+}
+.modal-submit button {
+  border-radius: 5px;
+  background-color: #438a2f;
+  border-color: #438a2f;
+  border-style: solid;
+  color: white;
+  font-weight: bolder;
+  font-size: large;
+  width: 30%;
+  padding: 5px 0px 5px 0px;
+}
+
+.modal-submit button:hover {
+  background-color: #72c25c;
+  border-color: #72c25c;
+}
+
+textarea:focus,
+input:focus {
+  outline: none;
+}
+
+.invalid {
+  background: #1e2023;
+  color: white;
+  font-weight: bold;
+  font-size: medium;
+  text-align: right;
+  caret-color: #5ac53b;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  border-style: solid;
+  border-bottom-color: red;
 }

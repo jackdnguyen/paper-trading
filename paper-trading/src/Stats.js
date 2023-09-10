@@ -4,21 +4,34 @@ import "./Stats.css";
 import StatsRow from "./StatsRow";
 import { db } from "./firebase.js";
 import { STOCKS_TYPE, LISTS_TYPE, pollFunc } from "./util";
+import { Close } from "@material-ui/icons";
 
 const TOKEN = "cjrk339r01qionif3lkgcjrk339r01qionif3ll0";
 const BASE_URL = "https://finnhub.io/api/v1/quote";
 
 function Stats() {
-  const [isOpen, setIsOpen] = useState(false);
   const [openModalProps, setModalProps] = useState({});
   const [stockData, setStockData] = useState([]);
   const [myStocks, setMyStock] = useState([]);
+  const [numOfTradeStocks, setNumTradeStocks] = useState(0);
   const handleModalClose = (props) => {
     const modalProps = { ...props, isOpen: false };
     setModalProps(modalProps);
   };
   const handleModalOpen = (props) => {
     setModalProps(props);
+  };
+  const handleInputChange = (input) => {
+    console.log(numOfTradeStocks);
+    setNumTradeStocks(input);
+  };
+  const handleOnSubmit = () => {
+    let validateModal = { ...openModalProps };
+    const value = openModalProps.price * numOfTradeStocks;
+    if (value > 1000) {
+      validateModal = { ...validateModal, error: "invalid" };
+    }
+    setModalProps(validateModal);
   };
   const getStockData = (stock) => {
     return fetch(`/quote?symbol=${stock}`);
@@ -83,7 +96,8 @@ function Stats() {
   };
   useEffect(() => {
     console.log("Use effect stats.js");
-    pollFunc(getStockList, Infinity, 5000);
+    // pollFunc(getStockList, Infinity, 5000);
+    getStockList();
     console.log(stockData);
     getMyStocks();
   }, []);
@@ -138,10 +152,49 @@ function Stats() {
           contentLabel="Example Modal"
           onRequestClose={handleModalClose}
         >
-          {openModalProps.type === STOCKS_TYPE && <h2>Sell Stock</h2>}
-          {openModalProps.type === LISTS_TYPE && <h2>Buy Stock</h2>}
-
-          <button onClick={handleModalClose}>X</button>
+          <div className="modal-header">
+            <div>
+              {openModalProps.type === STOCKS_TYPE && (
+                <div>
+                  <h2>Sell {openModalProps.stockName}</h2>
+                  <p className="modal-available-funds">
+                    {openModalProps.shares} shares
+                  </p>
+                </div>
+              )}
+              {openModalProps.type === LISTS_TYPE && (
+                <div>
+                  <h2>Buy {openModalProps.stockName}</h2>
+                  <p className="modal-available-funds">$4.22 Available</p>
+                </div>
+              )}
+            </div>
+            <Close onClick={handleModalClose} />
+          </div>
+          <div className="modal-info">
+            <div className="modal-info-content">
+              <p>Number of shares</p>
+              <input
+                defaultValue={0}
+                type="float"
+                value={numOfTradeStocks}
+                onChange={(e) => {
+                  handleInputChange(e.target.value);
+                }}
+                className={openModalProps.error}
+              ></input>
+            </div>
+            <div className="modal-info-content">
+              <p>Market price</p>
+              <p>${parseFloat(openModalProps.price) * numOfTradeStocks}</p>
+            </div>
+          </div>
+          <div className="modal-submit">
+            {openModalProps.type === STOCKS_TYPE && (
+              <button onClick={handleOnSubmit}>Sell</button>
+            )}
+            {openModalProps.type === LISTS_TYPE && <button>Buy</button>}
+          </div>
         </ReactModal>
       </div>
     </div>
