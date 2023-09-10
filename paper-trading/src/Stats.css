@@ -28,3 +28,25 @@
 .stats_lists {
   border-top: 1px solid #42494d;
 }
+
+.modal-content {
+  width: 25vw;
+  height: 25vh;
+  position: absolute;
+  left: 50%;
+  top: 40%;
+  transform: translate(-50%, -50%);
+  border: 1px solid #42494d;
+  background: #1e2023;
+  overflow: auto;
+  border-radius: 5px;
+  outline: none;
+  padding: 20px;
+  color: white;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0px;
+  background-color: rgba(25, 27, 26, 0.774);
+}

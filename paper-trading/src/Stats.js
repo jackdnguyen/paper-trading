@@ -1,43 +1,57 @@
 import React, { useState, useEffect } from "react";
+import ReactModal from "react-modal";
 import "./Stats.css";
-import axios from "axios";
 import StatsRow from "./StatsRow";
 import { db } from "./firebase.js";
+import { STOCKS_TYPE, LISTS_TYPE, pollFunc } from "./util";
 
 const TOKEN = "cjrk339r01qionif3lkgcjrk339r01qionif3ll0";
 const BASE_URL = "https://finnhub.io/api/v1/quote";
 
 function Stats() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [openModalProps, setModalProps] = useState({});
   const [stockData, setStockData] = useState([]);
   const [myStocks, setMyStock] = useState([]);
+  const handleModalClose = (props) => {
+    const modalProps = { ...props, isOpen: false };
+    setModalProps(modalProps);
+  };
+  const handleModalOpen = (props) => {
+    setModalProps(props);
+  };
   const getStockData = (stock) => {
-    return axios
-      .get(`${BASE_URL}?symbol=${stock}&token=${TOKEN}`)
-      .catch((error) => console.error("Error", error.message));
+    return fetch(`/quote?symbol=${stock}`);
+  };
+  const getStoredData = (symbol) => {
+    var index = stockData
+      .map(function (e) {
+        return e.name;
+      })
+      .indexOf(symbol);
+    console.log(symbol);
+    console.log(stockData[index]);
+    return stockData[index];
   };
   const getMyStocks = () => {
+    console.log(stockData);
     db.collection("myStocks").onSnapshot((snapshot) => {
       let promises = [];
-      let tempData = [];
+      let tempStockData = [];
       snapshot.docs.map((doc) => {
-        console.log(doc.data());
         promises.push(
-          getStockData(doc.data().ticker).then((res) => {
-            tempData.push({
-              id: doc.id,
-              data: doc.data(),
-              info: res.data,
-            });
+          tempStockData.push({
+            id: doc.id,
+            personal: doc.data(),
           })
         );
       });
       Promise.all(promises).then(() => {
-        setMyStock(tempData);
+        setMyStock(tempStockData);
       });
     });
   };
-  useEffect(() => {
-    getMyStocks();
+  const getStockList = () => {
     let tempStockData = [];
     const stocksList = [
       "AAPL",
@@ -52,17 +66,26 @@ function Stats() {
     let promises = [];
     stocksList.map((stock) => {
       promises.push(
-        getStockData(stock).then((res) => {
-          tempStockData.push({
-            name: stock,
-            ...res.data,
-          });
-        })
+        getStockData(stock)
+          .then((res) => res.text())
+          .then((data) => {
+            const dataObj = JSON.parse(data);
+            tempStockData.push({
+              name: stock,
+              data: dataObj,
+            });
+          })
       );
     });
     Promise.all(promises).then(() => {
       setStockData(tempStockData);
     });
+  };
+  useEffect(() => {
+    console.log("Use effect stats.js");
+    pollFunc(getStockList, Infinity, 5000);
+    console.log(stockData);
+    getMyStocks();
   }, []);
   return (
     <div className="stats">
@@ -74,11 +97,17 @@ function Stats() {
           <div className="stats__rows">
             {myStocks.map((stock) => (
               <StatsRow
-                key={stock.data.ticker}
-                name={stock.data.ticker}
-                openPrice={stock.info.o}
-                shares={stock.data.shares}
-                price={stock.info.c}
+                key={stock.personal.ticker}
+                name={stock.personal.ticker}
+                openPrice={
+                  getStoredData(stock.personal.ticker)?.data.regularMarketOpen
+                }
+                shares={stock.personal.shares}
+                price={
+                  getStoredData(stock.personal.ticker)?.data.regularMarketPrice
+                }
+                type={STOCKS_TYPE}
+                handleModalOpen={handleModalOpen}
               />
             ))}
           </div>
@@ -90,14 +119,30 @@ function Stats() {
           <div className="stats_rows">
             {stockData.map((stock) => (
               <StatsRow
-                key={stock.name}
-                name={stock.name}
-                openPrice={stock.o}
-                price={stock.c}
+                key={stock.data.symbol}
+                name={stock.data.symbol}
+                openPrice={stock.data.regularMarketOpen}
+                price={stock.data.regularMarketPrice}
+                type={LISTS_TYPE}
+                handleModalOpen={handleModalOpen}
               />
             ))}
           </div>
         </div>
+      </div>
+      <div className="react-modal2">
+        <ReactModal
+          className="modal-content"
+          overlayClassName="modal-overlay"
+          isOpen={openModalProps.isOpen}
+          contentLabel="Example Modal"
+          onRequestClose={handleModalClose}
+        >
+          {openModalProps.type === STOCKS_TYPE && <h2>Sell Stock</h2>}
+          {openModalProps.type === LISTS_TYPE && <h2>Buy Stock</h2>}
+
+          <button onClick={handleModalClose}>X</button>
+        </ReactModal>
       </div>
     </div>
   );
