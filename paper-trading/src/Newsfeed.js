@@ -18,7 +18,7 @@ const popularTopics = [
   "Pharma",
 ];
 
-function Newsfeed() {
+function Newsfeed(props) {
   return (
     <div className="newsfeed">
       <div className="newsfeed_container">
@@ -34,7 +34,7 @@ function Newsfeed() {
         </div>
         <div className="newsfeed_buyingSection">
           <h2>Buying Power</h2>
-          <h2>$4.11</h2>
+          <h2>${props.buyingPower}</h2>
         </div>
         <div className="newsfeed_marketSection">
           <div className="newsfeed_marketBox">
