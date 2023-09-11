@@ -127,8 +127,7 @@ input:focus {
   font-size: medium;
   text-align: right;
   caret-color: #5ac53b;
-  -webkit-appearance: none;
-  -moz-appearance: none;
   border-style: solid;
+  border-color: #1e2023;
   border-bottom-color: red;
 }

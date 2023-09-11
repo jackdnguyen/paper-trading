@@ -9,7 +9,7 @@ import { Close } from "@material-ui/icons";
 const TOKEN = "cjrk339r01qionif3lkgcjrk339r01qionif3ll0";
 const BASE_URL = "https://finnhub.io/api/v1/quote";
 
-function Stats() {
+function Stats(props) {
   const [openModalProps, setModalProps] = useState({});
   const [stockData, setStockData] = useState([]);
   const [myStocks, setMyStock] = useState([]);
@@ -28,10 +28,41 @@ function Stats() {
   const handleOnSubmit = () => {
     let validateModal = { ...openModalProps };
     const value = openModalProps.price * numOfTradeStocks;
-    if (value > 1000) {
+    if ((value < 0) || (numOfTradeStocks < 0)) {
       validateModal = { ...validateModal, error: "invalid" };
+      setModalProps(validateModal);
+      return;
     }
+    if (openModalProps.type === STOCKS_TYPE) {
+      if (openModalProps.shares < numOfTradeStocks) {
+        validateModal = { ...validateModal, error: "invalid" };
+        setModalProps(validateModal);
+        return;
+      } else {
+        db.collection("myStocks").where("ticker", "==", openModalProps.stockName).get().then((querySnapShot => {
+          if(!querySnapShot.empty) {
+            querySnapShot.forEach(function (doc) {
+              if ((doc.data().shares - numOfTradeStocks) === 0) {
+                db.collection("myStocks")
+                  .doc(doc.id)
+                  .remove();
+              } else {
+                db.collection("myStocks")
+                  .doc(doc.id)
+                  .update({
+                    shares: (doc.data().shares -= numOfTradeStocks),
+                  });
+              }
+            })
+          }
+        }))
+        props.setBuyingPower((props.buyingPower + value))
+      }
+    }
+    validateModal = { ...validateModal, error: "valid" };
     setModalProps(validateModal);
+    handleModalClose(validateModal);
+    return;
   };
   const getStockData = (stock) => {
     return fetch(`/quote?symbol=${stock}`);
