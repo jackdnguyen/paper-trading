@@ -1,0 +1,7 @@
+.stockNews_container a {
+  all: unset;
+}
+
+.stockNews_container a:hover {
+  color: #5ac53b;
+}

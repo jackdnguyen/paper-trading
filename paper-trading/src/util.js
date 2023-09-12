@@ -16,3 +16,21 @@ export function pollFunc(fn, timeout, interval) {
     }
   })();
 }
+
+export const ONE_DAY = "1d";
+export const FIVE_DAY = "5d";
+export const ONE_MONTH = "1mo";
+export const THREE_MONTHS = "3mo";
+export const ONE_YEAR = "1yr";
+
+export const stocksList = [
+  "AAPL",
+  "MSFT",
+  "AMZN",
+  "TSLA",
+  "META",
+  "BABA",
+  "UBER",
+  "DIS",
+  "SBUX",
+];

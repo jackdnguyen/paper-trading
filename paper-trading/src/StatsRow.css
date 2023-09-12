@@ -34,6 +34,41 @@
   color: #5ac53b;
 }
 
+.row_percentage.red {
+  color: #fa6a6a;
+}
+
 .row_chart {
   padding: 0 10px;
+}
+#B1 {
+  border-radius: 5px;
+  background-color: #42494d;
+  border-color: #42494d;
+  border-style: solid;
+  color: white;
+  font-size: small;
+  padding: 5px 20px 5px 20px;
+  margin-left: 7.5px;
+}
+
+#B1:hover {
+  background-color: #646d72;
+  border-color: #646d72;
+}
+
+#B2 {
+  border-radius: 5px;
+  background-color: #438a2f;
+  border-color: #438a2f;
+  border-style: solid;
+  color: white;
+  font-size: small;
+  padding: 5px 20px 5px 20px;
+  margin-left: 7.5px;
+}
+
+#B2:hover {
+  background-color: #72c25c;
+  border-color: #72c25c;
 }

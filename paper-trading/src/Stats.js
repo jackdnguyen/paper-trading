@@ -3,7 +3,7 @@ import ReactModal from "react-modal";
 import "./Stats.css";
 import StatsRow from "./StatsRow";
 import { db } from "./firebase.js";
-import { STOCKS_TYPE, LISTS_TYPE, pollFunc } from "./util";
+import { STOCKS_TYPE, LISTS_TYPE, pollFunc, stocksList } from "./util";
 import { Close } from "@material-ui/icons";
 
 const TOKEN = "cjrk339r01qionif3lkgcjrk339r01qionif3ll0";
@@ -11,8 +11,6 @@ const BASE_URL = "https://finnhub.io/api/v1/quote";
 
 function Stats(props) {
   const [openModalProps, setModalProps] = useState({});
-  const [stockData, setStockData] = useState([]);
-  const [myStocks, setMyStock] = useState([]);
   const [numOfTradeStocks, setNumTradeStocks] = useState(0);
   const handleModalClose = (props) => {
     const modalProps = { ...props, isOpen: false };
@@ -28,7 +26,7 @@ function Stats(props) {
   const handleOnSubmit = () => {
     let validateModal = { ...openModalProps };
     const value = openModalProps.price * numOfTradeStocks;
-    if ((value < 0) || (numOfTradeStocks < 0)) {
+    if (value < 0 || numOfTradeStocks < 0) {
       validateModal = { ...validateModal, error: "invalid" };
       setModalProps(validateModal);
       return;
@@ -39,24 +37,54 @@ function Stats(props) {
         setModalProps(validateModal);
         return;
       } else {
-        db.collection("myStocks").where("ticker", "==", openModalProps.stockName).get().then((querySnapShot => {
-          if(!querySnapShot.empty) {
-            querySnapShot.forEach(function (doc) {
-              if ((doc.data().shares - numOfTradeStocks) === 0) {
-                db.collection("myStocks")
-                  .doc(doc.id)
-                  .remove();
-              } else {
+        db.collection("myStocks")
+          .where("ticker", "==", openModalProps.stockName)
+          .get()
+          .then((querySnapShot) => {
+            if (!querySnapShot.empty) {
+              querySnapShot.forEach(function (doc) {
+                if (doc.data().shares - numOfTradeStocks === 0) {
+                  db.collection("myStocks").doc(doc.id).delete();
+                } else {
+                  db.collection("myStocks")
+                    .doc(doc.id)
+                    .update({
+                      shares: (doc.data().shares -= numOfTradeStocks),
+                    });
+                }
+              });
+            }
+          });
+        props.setBuyingPower(props.buyingPower + value);
+      }
+    }
+    if (openModalProps.type === LISTS_TYPE) {
+      if (props.buyingPower < value) {
+        validateModal = { ...validateModal, error: "invalid" };
+        setModalProps(validateModal);
+        return;
+      } else {
+        db.collection("myStocks")
+          .where("ticker", "==", openModalProps.stockName)
+          .get()
+          .then((querySnapShot) => {
+            if (!querySnapShot.empty) {
+              querySnapShot.forEach(function (doc) {
+                console.log(doc.data().shares + Number(numOfTradeStocks));
                 db.collection("myStocks")
                   .doc(doc.id)
                   .update({
-                    shares: (doc.data().shares -= numOfTradeStocks),
+                    shares: (doc.data().shares += parseFloat(numOfTradeStocks)),
                   });
-              }
-            })
-          }
-        }))
-        props.setBuyingPower((props.buyingPower + value))
+              });
+            } else {
+              db.collection("myStocks").add({
+                ticker: openModalProps.stockName,
+                shares: parseFloat(numOfTradeStocks),
+              });
+            }
+          });
+        props.setBuyingPower(props.buyingPower - value);
       }
     }
     validateModal = { ...validateModal, error: "valid" };
@@ -68,17 +96,14 @@ function Stats(props) {
     return fetch(`/quote?symbol=${stock}`);
   };
   const getStoredData = (symbol) => {
-    var index = stockData
+    var index = props.stockData
       .map(function (e) {
         return e.name;
       })
       .indexOf(symbol);
-    console.log(symbol);
-    console.log(stockData[index]);
-    return stockData[index];
+    return props.stockData[index];
   };
   const getMyStocks = () => {
-    console.log(stockData);
     db.collection("myStocks").onSnapshot((snapshot) => {
       let promises = [];
       let tempStockData = [];
@@ -91,22 +116,12 @@ function Stats(props) {
         );
       });
       Promise.all(promises).then(() => {
-        setMyStock(tempStockData);
+        props.setMyStock(tempStockData);
       });
     });
   };
   const getStockList = () => {
     let tempStockData = [];
-    const stocksList = [
-      "AAPL",
-      "MSFT",
-      "TSLA",
-      "META",
-      "BABA",
-      "UBER",
-      "DIS",
-      "SBUX",
-    ];
     let promises = [];
     stocksList.map((stock) => {
       promises.push(
@@ -122,14 +137,13 @@ function Stats(props) {
       );
     });
     Promise.all(promises).then(() => {
-      setStockData(tempStockData);
+      props.setStockData(tempStockData);
     });
   };
   useEffect(() => {
     console.log("Use effect stats.js");
-    // pollFunc(getStockList, Infinity, 5000);
+    // pollFunc(getStockList, Infinity, 10000);
     getStockList();
-    console.log(stockData);
     getMyStocks();
   }, []);
   return (
@@ -140,7 +154,7 @@ function Stats(props) {
         </div>
         <div className="stats_content">
           <div className="stats__rows">
-            {myStocks.map((stock) => (
+            {props.myStocks.map((stock) => (
               <StatsRow
                 key={stock.personal.ticker}
                 name={stock.personal.ticker}
@@ -153,6 +167,7 @@ function Stats(props) {
                 }
                 type={STOCKS_TYPE}
                 handleModalOpen={handleModalOpen}
+                setDisplayStock={props.setDisplayStock}
               />
             ))}
           </div>
@@ -162,7 +177,7 @@ function Stats(props) {
         </div>
         <div className="stats_content">
           <div className="stats_rows">
-            {stockData.map((stock) => (
+            {props.stockData.map((stock) => (
               <StatsRow
                 key={stock.data.symbol}
                 name={stock.data.symbol}
@@ -170,6 +185,7 @@ function Stats(props) {
                 price={stock.data.regularMarketPrice}
                 type={LISTS_TYPE}
                 handleModalOpen={handleModalOpen}
+                setDisplayStock={props.setDisplayStock}
               />
             ))}
           </div>
@@ -189,14 +205,17 @@ function Stats(props) {
                 <div>
                   <h2>Sell {openModalProps.stockName}</h2>
                   <p className="modal-available-funds">
-                    {openModalProps.shares} shares
+                    {Number(parseFloat(openModalProps.shares)).toFixed(2)}{" "}
+                    shares
                   </p>
                 </div>
               )}
               {openModalProps.type === LISTS_TYPE && (
                 <div>
                   <h2>Buy {openModalProps.stockName}</h2>
-                  <p className="modal-available-funds">$4.22 Available</p>
+                  <p className="modal-available-funds">
+                    ${Number(props.buyingPower).toFixed(2)} Available
+                  </p>
                 </div>
               )}
             </div>
@@ -217,14 +236,21 @@ function Stats(props) {
             </div>
             <div className="modal-info-content">
               <p>Market price</p>
-              <p>${parseFloat(openModalProps.price) * numOfTradeStocks}</p>
+              <p>
+                $
+                {Number(
+                  parseFloat(openModalProps.price) * numOfTradeStocks
+                ).toFixed(2)}
+              </p>
             </div>
           </div>
           <div className="modal-submit">
             {openModalProps.type === STOCKS_TYPE && (
               <button onClick={handleOnSubmit}>Sell</button>
             )}
-            {openModalProps.type === LISTS_TYPE && <button>Buy</button>}
+            {openModalProps.type === LISTS_TYPE && (
+              <button onClick={handleOnSubmit}>Buy</button>
+            )}
           </div>
         </ReactModal>
       </div>

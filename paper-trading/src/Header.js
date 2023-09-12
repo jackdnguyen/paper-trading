@@ -1,8 +1,17 @@
-import React from "react";
+import React, { useState } from "react";
 import Logo from "./papertrading.svg";
 import "./Header.css";
+import { stocksList } from "./util";
 
-function Header() {
+function Header(props) {
+  const [searchList, setSearchList] = useState(stocksList);
+  const handleInputChange = (e) => {
+    const val = e.target.value;
+    const inputSearchList = stocksList.filter((stock) => {
+      return stock.toLowerCase().includes(val.toLowerCase());
+    });
+    setSearchList(inputSearchList);
+  };
   return (
     <div className="header_wrapper">
       <div className="header_logo">
@@ -11,7 +20,23 @@ function Header() {
       </div>
       <div className="header_search">
         <div className="header_searchContainer">
-          <input placeholder="Search" type="text" />
+          <input
+            placeholder="Search"
+            type="text"
+            onChange={handleInputChange}
+          />
+          <div class="list-group">
+            {searchList.map((stock) => (
+              <div
+                className="li"
+                onMouseDown={() => {
+                  props.setDisplayStock(stock);
+                }}
+              >
+                {stock}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
       <div className="header_menuItems">
