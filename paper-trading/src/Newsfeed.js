@@ -83,7 +83,7 @@ function Newsfeed(props) {
   useEffect(() => {
     getPricingInfo();
     getTotalAccountWorth();
-  }, [props.stockData, props.displayStock]);
+  }, [props.stockData, props.displayStock, props.myStocks]);
   return (
     <div className="newsfeed">
       <div className="newsfeed_container">
