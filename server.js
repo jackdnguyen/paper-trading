@@ -2,8 +2,8 @@ const express = require("express");
 const yahooFinance = require("yahoo-finance2").default; // NOTE the .default
 var cors = require("cors");
 const app = express();
+const path = require('path');
 app.use(cors());
-const port = 5000;
 
 app.get("/quote", async (req, res) => {
   let symbol = req.query.symbol;
@@ -42,6 +42,15 @@ app.get("/search", async (req, res) => {
   const result = await yahooFinance.search(symbol);
   res.send(result);
 });
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+
+const root = require('path').join(__dirname, 'build');
+app.use(express.static(root));
+
+app.use('/*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
+
+// start express server on port 5000
+app.listen(process.env.PORT || 5000, () => {
+  console.log('server started');
 });
