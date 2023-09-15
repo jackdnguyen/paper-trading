@@ -1,10 +1,19 @@
-# Getting Started with Create React App
+# Project details
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+The application was created as a fun project to create a platform for trading virtual currency.
 
-## Available Scripts
+Created with ReactJS front-end and Express back-end to be used to fetch data from Yahoo Finance API 2.
 
-In the project directory, you can run:
+Deployed with Azure at: https://container-app-trkmsk5lp3mdw.gentlerock-7f513dc1.westus2.azurecontainerapps.io/
+
+To run locally:
+### `npm install`
+
+Installs packages
+
+### `node ./server.js`
+
+To run the express back-end.
 
 ### `npm start`
 
