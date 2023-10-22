@@ -92,12 +92,12 @@ function Newsfeed(props) {
     setMyStocksUpdated(true);
   }, [props.myStocks])
   useEffect(() => {
-    if (myStocksUpdated && buyingPowerUpdated) {
+    if (props.stockData.length !== 0 && props.myStocks.length !== 0 && props.buyingPower !== null && myStocksUpdated && buyingPowerUpdated) {
       calculateTotalAccountWorth();
       setBuyingPowerUpdated(false);
       setMyStocksUpdated(false);
     }
-  }, [props.myStocks, props.buyingPower, myStocksUpdated, buyingPowerUpdated])
+  }, [props.myStocks, props.buyingPower, myStocksUpdated, buyingPowerUpdated, props.stockData])
   return (
     <div className="newsfeed">
       <div className="newsfeed_container">
