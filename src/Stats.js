@@ -6,9 +6,6 @@ import { db } from "./firebase.js";
 import { STOCKS_TYPE, LISTS_TYPE, pollFunc, stocksList } from "./util";
 import { Close } from "@material-ui/icons";
 
-const TOKEN = "cjrk339r01qionif3lkgcjrk339r01qionif3ll0";
-const BASE_URL = "https://finnhub.io/api/v1/quote";
-
 function Stats(props) {
   const [openModalProps, setModalProps] = useState({});
   const [numOfTradeStocks, setNumTradeStocks] = useState(0);
@@ -20,7 +17,6 @@ function Stats(props) {
     setModalProps(props);
   };
   const handleInputChange = (input) => {
-    console.log(numOfTradeStocks);
     setNumTradeStocks(input);
   };
   const handleOnSubmit = () => {
@@ -70,7 +66,6 @@ function Stats(props) {
           .then((querySnapShot) => {
             if (!querySnapShot.empty) {
               querySnapShot.forEach(function (doc) {
-                console.log(doc.data().shares + Number(numOfTradeStocks));
                 db.collection("myStocks")
                   .doc(doc.id)
                   .update({
@@ -141,8 +136,6 @@ function Stats(props) {
     });
   };
   useEffect(() => {
-    console.log("Use effect stats.js");
-    // pollFunc(getStockList, Infinity, 10000);
     getStockList();
     getMyStocks();
   }, []);

@@ -18,9 +18,14 @@ const options = {
   },
   maintainAspectRatio: false,
   tooltips: {
-    mode: "index",
+    mode: 'index',
     intersect: false,
-    callbacks: {},
+    displayColors: false,
+    callbacks: {
+        label: function(tooltipItems, data) { 
+            return tooltipItems.yLabel + ' USD';
+        }
+    }
   },
   scales: {
     xAxes: [
@@ -57,7 +62,7 @@ function LineGraph(props) {
         let date = new Date(props.priceHistory[i].date);
         data.push({
           x: date,
-          y: props.priceHistory[i].open,
+          y: props.priceHistory[i].open.toFixed(2),
         });
       }
       if (props.percentage > 0) {

@@ -21,11 +21,12 @@ const popularTopics = [
 ];
 
 function Newsfeed(props) {
-  const initialBuyingPower = props.buyingPower;
   const [priceHistory, setPriceHistory] = useState([]);
   const [interval, setInterval] = useState(FIVE_DAY);
   const [pricingInfo, setPricingInfo] = useState({});
-  const [accountWorth, setAccountWorth] = useState(initialBuyingPower);
+  const [accountWorth, setAccountWorth] = useState(props.buyingPower);
+  const [myStocksUpdated, setMyStocksUpdated] = useState(false);
+  const [buyingPowerUpdated, setBuyingPowerUpdated] = useState(false);
   const getStoredData = (stock) => {
     if (props.stockData) {
       var index = props.stockData
@@ -39,7 +40,6 @@ function Newsfeed(props) {
   const getPricingInfo = () => {
     const stockInfo = getStoredData(props.displayStock);
     if (stockInfo) {
-      console.log(stockInfo);
       const percentage =
         ((stockInfo.data.regularMarketPrice -
           stockInfo.data.regularMarketOpen) /
@@ -48,9 +48,9 @@ function Newsfeed(props) {
       const changeAmount = Number(
         parseFloat(stockInfo.data.regularMarketPrice * percentage) / 100
       ).toFixed(2);
-      var isNegative = changeAmount > 0 ? "+" : "-";
+      var isNegative = changeAmount > 0 ? '+' : '-';
       const changeAmountString =
-        isNegative + "$" + String(Math.abs(changeAmount));
+        isNegative + '$' + String(Math.abs(changeAmount));
       setPricingInfo({
         price: stockInfo.data.regularMarketPrice,
         percentage: Number(percentage).toFixed(2),
@@ -58,7 +58,7 @@ function Newsfeed(props) {
       });
     }
   };
-  const getTotalAccountWorth = () => {
+  const calculateTotalAccountWorth = () => {
     let totalWorth = props.buyingPower;
     for (var i = 0; i < props.myStocks.length; ++i) {
       const stockData = getStoredData(props.myStocks[i].personal.ticker);
@@ -70,6 +70,7 @@ function Newsfeed(props) {
     }
     setAccountWorth(totalWorth);
   };
+
   useEffect(async () => {
     const result = await fetch(
       `/historical?symbol=${props.displayStock}&interval=${interval}`
@@ -80,10 +81,23 @@ function Newsfeed(props) {
         setPriceHistory(dataJSON.quotes);
       });
   }, [interval, props.displayStock]);
+
   useEffect(() => {
     getPricingInfo();
-    getTotalAccountWorth();
-  }, [props.stockData, props.displayStock, props.myStocks]);
+  }, [props.stockData, props.displayStock])
+  useEffect(() => {
+    setBuyingPowerUpdated(true);
+  }, [props.buyingPower])
+  useEffect(() => {
+    setMyStocksUpdated(true);
+  }, [props.myStocks])
+  useEffect(() => {
+    if (myStocksUpdated && buyingPowerUpdated) {
+      calculateTotalAccountWorth();
+      setBuyingPowerUpdated(false);
+      setMyStocksUpdated(false);
+    }
+  }, [props.myStocks, props.buyingPower, myStocksUpdated, buyingPowerUpdated])
   return (
     <div className="newsfeed">
       <div className="newsfeed_container">
