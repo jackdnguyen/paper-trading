@@ -4,7 +4,7 @@ The application was created as a fun project to create a platform for trading vi
 
 Created with ReactJS front-end and Express back-end to be used to fetch data from Yahoo Finance API 2.
 
-Deployed with Azure at: https://container-app-trkmsk5lp3mdw.gentlerock-7f513dc1.westus2.azurecontainerapps.io/
+Deployed with Azure at: https://paper-trading.jollymeadow-add0c565.canadaeast.azurecontainerapps.io/
 
 To run locally:
 ### `npm install`
